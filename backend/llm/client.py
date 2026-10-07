@@ -1,10 +1,18 @@
 """
 BossAgent — LLM Client
+
 Provider-agnostic wrapper for NVIDIA NIM and Nebius Token Factory.
+Both expose an OpenAI-compatible API, so we use one client and switch
+the base_url based on environment variable BOSSAGENT_PROVIDER.
+
+Usage:
+    from backend.llm.client import chat
+    reply = chat("Say hello in one sentence.")
 """
 
 import os
 from openai import OpenAI
+
 
 PROVIDERS = {
     "nvidia": {
@@ -13,7 +21,7 @@ PROVIDERS = {
         "models": {
             "ultra": "nvidia/nemotron-3-ultra-550b-a55b",
             "super": "nvidia/nemotron-3-super-120b-a12b",
-            "nano":  "nvidia/nemotron-3-nano-30b-a3b",
+            "nano":  "nvidia/nemotron-3.5-lightning-30b-a3b",
             "lightning": "nvidia/nemotron-3.5-lightning-30b-a3b",
         },
     },
