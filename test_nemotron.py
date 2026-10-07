@@ -9,7 +9,8 @@ client = OpenAI(
 response = client.chat.completions.create(
     model="nvidia/nemotron-3.5-lightning-30b-a3b",
     messages=[{"role": "user", "content": "Say hello in one sentence."}],
-    max_tokens=50
+    max_tokens=200,
+    extra_body={"chat_template_kwargs": {"enable_thinking": False}}
 )
 
 print(response.choices[0].message.content)
