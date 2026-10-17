@@ -25,3 +25,32 @@ def get_paypal_credentials():
         raise ValueError("PayPal credentials missing! Set them in Colab Secrets.")
 
     return client_id, client_secret
+def get_paypal_access_token():
+    """
+    Authenticates with PayPal Sandbox and returns an OAuth2 access token.
+    """
+    client_id, client_secret = get_paypal_credentials()
+    
+    # PayPal requires Base64 encoding of client_id:client_secret
+    auth_string = f"{client_id}:{client_secret}"
+    auth_bytes = auth_string.encode('utf-8')
+    auth_b64 = b64encode(auth_bytes).decode('utf-8')
+    
+    headers = {
+        "Accept": "application/json",
+        "Accept-Language": "en_US",
+        "Authorization": f"Basic {auth_b64}"
+    }
+    
+    data = {
+        "grant_type": "client_credentials"
+    }
+    
+    url = f"{PAYPAL_SANDBOX_URL}/v1/oauth2/token"
+    
+    response = requests.post(url, headers=headers, data=data)
+    
+    if response.status_code == 200:
+        return response.json().get("access_token")
+    else:
+        raise Exception(f"Failed to get token: {response.text}")
