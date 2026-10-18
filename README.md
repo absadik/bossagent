@@ -14,4 +14,5 @@ This project is **informed by Article 15** of the EU AI Act. It does not claim c
 ## Setup (Google Colab)
 1. Store `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, and `GEMINI_API_KEY` in Colab Secrets (🔑).
 2. Use PayPal Sandbox URL (`https://api-m.sandbox.paypal.com`) only.
-3. Run `!wget` to pull files and execute `main.py`.
+3. Download the files from the `backend/agents/` folder.
+4. Run the orchestrator using: `!python backend/agents/main.py`
