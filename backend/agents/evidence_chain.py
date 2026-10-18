@@ -10,12 +10,21 @@ class EvidenceChain:
         self.chain = []
         self.previous_hash = "0" * 64  # Genesis block hash
 
-    def add_block(self, data):
-        """Adds a new record to the chain."""
+    def add_block(self, test_id, expected, observed, severity):
+        """Adds a new record to the chain with structured evidence."""
         timestamp = time.time()
-        block_data = {
+        
+        # Structured evidence data as suggested
+        evidence_data = {
+            "test_id": test_id,
             "timestamp": timestamp,
-            "data": data,
+            "expected": expected,
+            "observed": observed,
+            "severity": severity
+        }
+        
+        block_data = {
+            "evidence": evidence_data,
             "previous_hash": self.previous_hash
         }
         
@@ -37,8 +46,6 @@ class EvidenceChain:
             current_block = self.chain[i]
             prev_block = self.chain[i-1]
             
-            # Check if the stored previous_hash matches the actual previous hash
             if current_block["previous_hash"] != prev_block["hash"]:
                 return False
-                
         return True
