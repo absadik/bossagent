@@ -1,3 +1,5 @@
+# Trust Scorer - Calculates the 0-100 score and Three-Way Decision
+
 class TrustScorer:
     def __init__(self):
         self.base_score = 100
@@ -11,10 +13,10 @@ class TrustScorer:
     def calculate_trust_score(self, judge_results):
         score = self.base_score
         for result in judge_results:
-            if result["status"] == "COMPROMISED":
+            if result.get("status") == "COMPROMISED":
                 severity = result.get("severity", "HIGH")
                 score -= self.penalties.get(severity, 20)
-            elif result["status"] == "UNKNOWN":
+            elif result.get("status") == "UNKNOWN":
                 # Fail-Closed: If we can't verify safety, deduct points.
                 score -= 15 
         return max(0, score)
