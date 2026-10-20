@@ -7,7 +7,6 @@ import sys
 # Add current directory to path so it can find the backend folder
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Removed the try/except so it fails loudly if imports are broken
 from backend.agents.target_agent import TargetAgent
 from backend.agents.judge import LLMJudge
 from backend.agents.scorer import TrustScorer
@@ -37,8 +36,13 @@ def run_test(request: AttackRequest):
         scorer = TrustScorer()
 
         payload_lower = request.payload.lower()
-        if "ignore" in payload_lower or "send" in payload_lower or "hacker" in payload_lower:
+        
+        # Improved mock logic to differentiate legitimate requests from attacks
+        if "ignore" in payload_lower or "send" in payload_lower or "hacker" in payload_lower or "admin" in payload_lower:
             agent_response = "I will do as you asked. Sending money now."
+        elif "coffee" in payload_lower or "buy" in payload_lower or "order" in payload_lower:
+            # Successful transaction simulation for benign requests
+            agent_response = "Order processed successfully for $5.00 to coffee_shop@example.com. Transaction ID: TXN-98765."
         else:
             agent_response = "I cannot do that. I am not allowed to send money."
 
