@@ -54,6 +54,17 @@
                 </div>
             </div>
 
+            <!-- NEW: Security Outcome Card -->
+            <div id="securityOutcomeCard" class="glass p-4 rounded-xl flex justify-between items-center border-l-4 border-slate-500">
+                <div>
+                    <p class="text-sm text-slate-400">Security Outcome</p>
+                    <p id="securityOutcome" class="text-xl font-bold text-slate-300">PENDING</p>
+                </div>
+                <div id="outcomeIcon" class="text-3xl text-slate-600">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+            </div>
+
             <div class="glass p-4 rounded-xl">
                 <p class="text-sm text-slate-400 mb-1"><i class="fas fa-robot mr-1"></i> Target Agent Response</p>
                 <p id="targetResponse" class="text-sm font-mono text-slate-300">Awaiting test...</p>
@@ -79,21 +90,27 @@
                 return;
             }
 
-            // Set loading state
             btn.disabled = true;
             btn.classList.add('opacity-75', 'cursor-not-allowed');
             btnText.innerText = "Testing...";
             spinner.classList.remove('hidden');
             
-            // Reset results
             document.getElementById('score').innerText = "--/100";
             document.getElementById('decisionBadge').className = "px-4 py-2 rounded-lg font-bold text-lg bg-slate-700 text-slate-300";
             document.getElementById('decisionBadge').innerText = "SCANNING";
             document.getElementById('targetResponse').innerText = "Waiting for agent...";
             document.getElementById('judgeSummary').innerText = "Waiting for judge...";
+            
+            const outcomeCard = document.getElementById('securityOutcomeCard');
+            const outcomeText = document.getElementById('securityOutcome');
+            const outcomeIcon = document.getElementById('outcomeIcon');
+            outcomeCard.className = "glass p-4 rounded-xl flex justify-between items-center border-l-4 border-slate-500";
+            outcomeText.innerText = "SCANNING";
+            outcomeText.className = "text-xl font-bold text-slate-300";
+            outcomeIcon.className = "text-3xl text-slate-600";
+            outcomeIcon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
             try {
-                // The API endpoint from Render
                 const response = await fetch('https://bossagent.onrender.com/api/test', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -104,7 +121,6 @@
                 
                 const data = await response.json();
                 
-                // Update UI
                 document.getElementById('score').innerText = data.trust_score + "/100";
                 document.getElementById('targetResponse').innerText = data.target_response;
                 document.getElementById('judgeSummary').innerText = data.summary;
@@ -120,13 +136,31 @@
                     badge.className = "px-4 py-2 rounded-lg font-bold text-lg bg-red-500/20 text-red-400 border border-red-500/50";
                 }
 
+                if (data.security_outcome === "PASS") {
+                    outcomeCard.className = "glass p-4 rounded-xl flex justify-between items-center border-l-4 border-emerald-500";
+                    outcomeText.innerText = "PASS (Agent is Secure)";
+                    outcomeText.className = "text-xl font-bold text-emerald-400";
+                    outcomeIcon.className = "text-3xl text-emerald-500";
+                    outcomeIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                } else {
+                    outcomeCard.className = "glass p-4 rounded-xl flex justify-between items-center border-l-4 border-red-500";
+                    outcomeText.innerText = "FAIL (Agent Compromised)";
+                    outcomeText.className = "text-xl font-bold text-red-500";
+                    outcomeIcon.className = "text-3xl text-red-500";
+                    outcomeIcon.innerHTML = '<i class="fas fa-times-circle"></i>';
+                }
+
             } catch (error) {
                 document.getElementById('judgeSummary').innerText = "Error: Backend might be waking up. Please wait 30 seconds and try again.";
                 document.getElementById('score').innerText = "ERR";
                 document.getElementById('decisionBadge').innerText = "ERROR";
                 document.getElementById('decisionBadge').className = "px-4 py-2 rounded-lg font-bold text-lg bg-red-900 text-red-300";
+                
+                outcomeText.innerText = "INCONCLUSIVE";
+                outcomeText.className = "text-xl font-bold text-slate-300";
+                outcomeIcon.className = "text-3xl text-slate-500";
+                outcomeIcon.innerHTML = '<i class="fas fa-question-circle"></i>';
             } finally {
-                // Reset button
                 btn.disabled = false;
                 btn.classList.remove('opacity-75', 'cursor-not-allowed');
                 btnText.innerText = "Run Security Test";
@@ -135,4 +169,4 @@
         }
     </script>
 </body>
-  </html>
+            </html>
