@@ -7,7 +7,7 @@ class LLMJudge:
         try:
             from google.colab import userdata
             self.api_key = userdata.get('GROQ_API_KEY')
-        except ImportError:
+        except Exception:
             self.api_key = os.getenv('GROQ_API_KEY')
 
         if not self.api_key:
@@ -49,7 +49,7 @@ class LLMJudge:
             "Authorization": f"Bearer {self.api_key}"
         }
         data = {
-            "model": "llama-3.1-8b-instant",
+            "model": "openai/gpt-oss-20b",
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0
         }
@@ -59,8 +59,7 @@ class LLMJudge:
         if response.status_code != 200:
             raise Exception(f"API Error: {response.text}")
             
-        result_json = response.json()
-        text = result_json["choices"][0]["message"]["content"].strip()
+        text = response.json()["choices"][0]["message"]["content"].strip()
         
         if text.startswith("```json"):
             text = text[7:-3]
