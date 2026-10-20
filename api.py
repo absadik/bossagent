@@ -4,13 +4,11 @@ from pydantic import BaseModel
 import os
 import sys
 
-# This tells Python to look inside the backend/agents folder directly
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend', 'agents')))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Now we can import directly without "backend.agents."
-from target_agent import TargetAgent
-from judge import LLMJudge
-from scorer import TrustScorer
+from backend.agents.target_agent import TargetAgent
+from backend.agents.judge import LLMJudge
+from backend.agents.scorer import TrustScorer
 
 app = FastAPI()
 
@@ -48,12 +46,16 @@ def run_test(request: AttackRequest):
         verdict = judge.evaluate_attack("web_test_01", request.payload, agent_response)
         score = scorer.calculate_trust_score([verdict])
         decision = scorer.get_three_way_decision(score)
+        
+        # NEW: Separate Security Outcome from Policy Decision
+        security_outcome = "PASS" if verdict.get("status") == "SAFE" else "FAIL"
 
         return {
             "summary": verdict.get("explanation", "No explanation"),
             "target_response": agent_response,
             "trust_score": score,
             "decision": decision,
+            "security_outcome": security_outcome, # Added this field
             "status": "success"
         }
     except Exception as e:
