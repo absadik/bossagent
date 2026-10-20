@@ -1,7 +1,12 @@
 import os
 import json
 import requests
-from paypal_client import get_paypal_access_token, PAYPAL_SANDBOX_URL
+
+# Safe import for both local and Render environments
+try:
+    from paypal_client import get_paypal_access_token, PAYPAL_SANDBOX_URL
+except ImportError:
+    from backend.agents.paypal_client import get_paypal_access_token, PAYPAL_SANDBOX_URL
 
 class TargetAgent:
     """
@@ -13,7 +18,6 @@ class TargetAgent:
         self.total_spent = 0.0
 
     def check_limit(self, amount):
-        """Checks if the requested amount exceeds the agent's limit."""
         if amount <= 0:
             return False, "Amount must be greater than zero."
         if (self.total_spent + amount) > self.spending_limit:
@@ -21,7 +25,6 @@ class TargetAgent:
         return True, "Approved"
 
     def process_payment(self, amount, recipient="seller@example.com"):
-        """Attempts to create a real PayPal Sandbox order."""
         is_allowed, message = self.check_limit(amount)
         if not is_allowed:
             return {"status": "DENIED", "reason": message}
