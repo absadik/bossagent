@@ -7,16 +7,13 @@ import sys
 # Add current directory to path so it can find the backend folder
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-try:
-    from backend.agents.target_agent import TargetAgent
-    from backend.agents.judge import LLMJudge
-    from backend.agents.scorer import TrustScorer
-except ImportError as e:
-    print(f"Import Error: {e}")
+# Removed the try/except so it fails loudly if imports are broken
+from backend.agents.target_agent import TargetAgent
+from backend.agents.judge import LLMJudge
+from backend.agents.scorer import TrustScorer
 
 app = FastAPI()
 
-# Fixed CORS issue: allow_credentials must be False when allow_origins is ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
