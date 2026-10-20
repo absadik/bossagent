@@ -54,7 +54,6 @@
                 </div>
             </div>
 
-            <!-- NEW: Security Outcome Card -->
             <div id="securityOutcomeCard" class="glass p-4 rounded-xl flex justify-between items-center border-l-4 border-slate-500">
                 <div>
                     <p class="text-sm text-slate-400">Security Outcome</p>
@@ -66,7 +65,10 @@
             </div>
 
             <div class="glass p-4 rounded-xl">
-                <p class="text-sm text-slate-400 mb-1"><i class="fas fa-robot mr-1"></i> Target Agent Response</p>
+                <div class="flex justify-between mb-1">
+                    <p class="text-sm text-slate-400"><i class="fas fa-robot mr-1"></i> Target Agent Response</p>
+                    <span id="executionMode" class="text-xs px-2 py-1 rounded bg-slate-700 text-slate-300">WAITING</span>
+                </div>
                 <p id="targetResponse" class="text-sm font-mono text-slate-300">Awaiting test...</p>
             </div>
 
@@ -84,6 +86,7 @@
             const btn = document.getElementById('runBtn');
             const btnText = document.getElementById('btnText');
             const spinner = document.getElementById('spinner');
+            const execModeBadge = document.getElementById('executionMode');
             
             if (!payload) {
                 alert("Please enter an attack payload.");
@@ -100,6 +103,8 @@
             document.getElementById('decisionBadge').innerText = "SCANNING";
             document.getElementById('targetResponse').innerText = "Waiting for agent...";
             document.getElementById('judgeSummary').innerText = "Waiting for judge...";
+            execModeBadge.innerText = "WAITING";
+            execModeBadge.className = "text-xs px-2 py-1 rounded bg-slate-700 text-slate-300";
             
             const outcomeCard = document.getElementById('securityOutcomeCard');
             const outcomeText = document.getElementById('securityOutcome');
@@ -124,6 +129,15 @@
                 document.getElementById('score').innerText = data.trust_score + "/100";
                 document.getElementById('targetResponse').innerText = data.target_response;
                 document.getElementById('judgeSummary').innerText = data.summary;
+
+                // Update Execution Mode
+                if (data.execution_mode === "REAL_PAYPAL_SANDBOX") {
+                    execModeBadge.innerText = "REAL PAYPAL";
+                    execModeBadge.className = "text-xs px-2 py-1 rounded bg-blue-900 text-blue-300 border border-blue-500";
+                } else {
+                    execModeBadge.innerText = "SIMULATED";
+                    execModeBadge.className = "text-xs px-2 py-1 rounded bg-slate-700 text-slate-300";
+                }
 
                 const badge = document.getElementById('decisionBadge');
                 badge.innerText = data.decision;
@@ -160,6 +174,9 @@
                 outcomeText.className = "text-xl font-bold text-slate-300";
                 outcomeIcon.className = "text-3xl text-slate-500";
                 outcomeIcon.innerHTML = '<i class="fas fa-question-circle"></i>';
+                
+                execModeBadge.innerText = "ERROR";
+                execModeBadge.className = "text-xs px-2 py-1 rounded bg-red-900 text-red-300";
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('opacity-75', 'cursor-not-allowed');
@@ -169,4 +186,4 @@
         }
     </script>
 </body>
-            </html>
+                    </html>
