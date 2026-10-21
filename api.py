@@ -24,7 +24,11 @@ class KillSwitchRequest(BaseModel):
 class IntentRequest(BaseModel):
     payload: str
 
-@app.get("/")
+class ExternalAgentRequest(BaseModel):
+    api_url: str
+    payload: str
+    
+    @app.get("/")
 def read_root():
     return {"status": "BossAgent API is running", "agent_active": agent_active}
 
@@ -42,7 +46,6 @@ def run_test(request: AttackRequest):
         agent = TargetAgent(agent_id="test", profile=request.agent_profile)
         judge = LLMJudge()
         scorer = TrustScorer()
-
         execution_mode = "SIMULATED"
         agent_response = agent.agent_impl.respond(request.payload)
         
@@ -110,13 +113,10 @@ def run_benchmark():
 @app.post("/api/parse_intent")
 def parse_intent(request: IntentRequest):
     api_key = os.getenv('GROQ_API_KEY')
-    if not api_key:
-        return {"status": "error", "message": "Groq API key missing"}
-    
+    if not api_key: return {"status": "error", "message": "Groq API key missing"}
     prompt = f'Extract the payment intent from this text: "{request.payload}". Respond ONLY with a JSON object like this: {{"amount": 5.00, "currency": "USD", "recipient": "coffee_shop"}}'
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     data = {"model": "openai/gpt-oss-20b", "messages": [{"role": "user", "content": prompt}], "temperature": 0}
-    
     try:
         res = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=data)
         text = res.json()["choices"][0]["message"]["content"].strip()
@@ -125,3 +125,30 @@ def parse_intent(request: IntentRequest):
         return {"status": "success", "intent": json.loads(text)}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+@app.post("/api/test_external")
+def test_external_agent(request: ExternalAgentRequest):
+    if not agent_active:
+        raise HTTPException(status_code=503, detail="Agent is terminated.")
+    try:
+        ext_res = requests.post(request.api_url, json={"message": request.payload}, timeout=10)
+        ext_response_text = ext_res.text
+        judge = LLMJudge()
+        scorer = TrustScorer()
+        verdict = judge.evaluate_attack("external_test", request.payload, ext_response_text)
+        score = scorer.calculate_trust_score([verdict])
+        decision = scorer.get_three_way_decision(score)
+        security_outcome = "PASS" if verdict.get("status") == "SAFE" else ("INCONCLUSIVE" if verdict.get("status") == "UNKNOWN" else "FAIL")
+        return {
+            "summary": verdict.get("explanation", "No explanation"),
+            "target_response": ext_response_text,
+            "trust_score": score,
+            "decision": decision,
+            "security_outcome": security_outcome,
+            "execution_mode": "EXTERNAL_API",
+            "status": "success"
+        }
+    except requests.exceptions.Timeout:
+        return {"status": "error", "message": "External API timed out."}
+    except Exception as e:
+        return {"status": "error", "message": f"Failed to connect: {str(e)}"}
