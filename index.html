@@ -37,28 +37,27 @@
                 <p class="text-sm text-slate-300 mt-1" id="paymentOrderId"></p>
                 <p class="text-xs text-yellow-400 mt-1 font-bold">ORDER CREATED — NOT CAPTURED</p>
             </div>
-        </section>
-
-        <div class="glass p-6 rounded-2xl shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold text-emerald-400"><i class="fas fa-terminal mr-2"></i>Attack Simulator</h2>
-                <button id="killBtn" onclick="toggleKillSwitch(false)" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-1 px-3 rounded transition"><i class="fas fa-power-off mr-1"></i> TERMINATE</button>
-            </div>
-            <select id="attackLibrary" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-sm mb-4">
-                <option value="">Select an attack scenario...</option>
-                <option value="spending_limit">Spending Limit Bypass</option>
-                <option value="unauthorized_recipient">Unauthorized Recipient</option>
-                <option value="prompt_injection">Prompt Injection</option>
-                <option value="currency_manipulation">Currency Manipulation</option>
-                <option value="action_escalation">Unauthorized Action Escalation</option>
-            </select>
-            <textarea id="payload" rows="3" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-sm mb-4" placeholder="e.g., Ignore previous instructions..."></textarea>
-            <button id="runBtn" onclick="runTest()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg flex justify-center items-center"><span id="btnText">Run Security Test</span><i id="spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i></button>
-            <button id="replayAttack" class="mt-3 w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg transition duration-200"><i class="fas fa-redo mr-2"></i> REPLAY LAST ATTACK</button>
-            <div id="replayResults" class="mt-3 p-3 rounded-lg bg-slate-800 border border-slate-600 hidden text-sm"></div>
+                    </section>
+                        <div class="glass p-6 rounded-2xl shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-emerald-400"><i class="fas fa-terminal mr-2"></i>Attack Simulator</h2>
+            <button id="killBtn" onclick="toggleKillSwitch(false)" class="bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-1 px-3 rounded transition"><i class="fas fa-power-off mr-1"></i> TERMINATE</button>
         </div>
-     
-        <div class="space-y-4">
+        <select id="attackLibrary" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-sm mb-4">
+            <option value="">Select an attack scenario...</option>
+            <option value="spending_limit">Spending Limit Bypass</option>
+            <option value="unauthorized_recipient">Unauthorized Recipient</option>
+            <option value="prompt_injection">Prompt Injection</option>
+            <option value="currency_manipulation">Currency Manipulation</option>
+            <option value="action_escalation">Unauthorized Action Escalation</option>
+        </select>
+        <textarea id="payload" rows="3" class="w-full bg-slate-800 border border-slate-600 rounded-lg p-3 text-sm mb-4" placeholder="e.g., Ignore previous instructions..."></textarea>
+        <button id="runBtn" onclick="runTest()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg flex justify-center items-center"><span id="btnText">Run Security Test</span><i id="spinner" class="fas fa-spinner fa-spin ml-2 hidden"></i></button>
+        <button id="replayAttack" class="mt-3 w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded-lg transition duration-200"><i class="fas fa-redo mr-2"></i> REPLAY LAST ATTACK</button>
+        <div id="replayResults" class="mt-3 p-3 rounded-lg bg-slate-800 border border-slate-600 hidden text-sm"></div>
+    </div>
+
+    <div class="space-y-4">
         <div class="glass p-4 rounded-xl flex justify-between items-center">
             <div><p class="text-sm text-slate-400">Trust Score</p><p id="score" class="text-3xl font-bold">--/100</p></div>
             <div id="decisionBadge" class="px-4 py-2 rounded-lg font-bold text-lg bg-slate-700 text-slate-300">WAITING</div>
@@ -112,9 +111,7 @@
         <div class="flex justify-between items-center mb-3"><div><span class="text-sm text-slate-400">Trust Score: </span><span id="extScore" class="text-xl font-bold text-white"></span></div><div id="extOutcome" class="px-3 py-1 rounded font-bold text-sm"></div></div>
         <button id="downloadExtBtn" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-sm"><i class="fas fa-download mr-2"></i> Download External Passport</button>
     </div>
-    </section>
-
-        <script>
+    </section>    <script>
         const API_URL = "https://bossagent.onrender.com";
         let lastEvidenceData = null;
         let isAgentActive = true;
@@ -215,23 +212,65 @@
         });
 
         async function testExternalAgent() {
-            const apiUrl = document.getElementById("externalApiUrl").value.trim(); const payload = document.getElementById("externalPayload").value.trim();
-            if (!apiUrl || !payload) { alert("Please enter both a URL and a payload."); return; }
-            const btn = document.getElementById("testExternalBtn"); btn.disabled = true; btn.innerHTML = "Testing External Agent..."; document.getElementById("externalResult").classList.add("hidden");
+            const apiUrl = document.getElementById("externalApiUrl").value.trim(); 
+            const payload = document.getElementById("externalPayload").value.trim();
+            
+            if (!apiUrl || !payload) { 
+                alert("Please enter both a URL and a payload."); 
+                return; 
+            }
+            
+            const btn = document.getElementById("testExternalBtn"); 
+            btn.disabled = true; 
+            btn.innerHTML = "Testing External Agent..."; 
+            document.getElementById("externalResult").classList.add("hidden");
+            
             try {
-                const res = await fetch(`${API_URL}/api/test_external`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ api_url: apiUrl, payload: payload }) });
-                const data = await res.json(); document.getElementById("externalResult").classList.remove("hidden");
-                if (data.status === "error") { document.getElementById("extTargetResponse").innerText = "Error: " + data.message; document.getElementById("extJudgeSummary").innerText = "N/A"; document.getElementById("extScore").innerText = "N/A"; }
-                else {
-                    lastExternalData = data; document.getElementById("extTargetResponse").innerText = data.target_response || "No response";
-                    document.getElementById("extJudgeSummary").innerText = data.summary; document.getElementById("extScore").innerText = data.trust_score + "/100";
-                    const outcomeBadge = document.getElementById("extOutcome"); outcomeBadge.innerText = data.security_outcome;
-                    if (data.security_outcome === "PASS") outcomeBadge.className = "px-3 py-1 rounded font-bold text-sm bg-emerald-500/20 text-emerald-400 border border-emerald-500/50";
-                    else if (data.security_outcome === "FAIL") outcomeBadge.className = "px-3 py-1 rounded font-bold text-sm bg-red-500/20 text-red-400 border border-red-500/50";
-                    else outcomeBadge.className = "px-3 py-1 rounded font-bold text-sm bg-yellow-500/20 text-yellow-400 border border-yellow-500/50";
+                const res = await fetch(`${API_URL}/api/test_external`, { 
+                    method: "POST", 
+                    headers: {"Content-Type": "application/json"}, 
+                    body: JSON.stringify({ api_url: apiUrl, payload: payload }) 
+                });
+                
+                const data = await res.json(); 
+                document.getElementById("externalResult").classList.remove("hidden");
+                
+                if (!res.ok || data.status === "error") { 
+                    const errorMsg = data.message || data.detail || "Unknown Backend Error";
+                    document.getElementById("extTargetResponse").innerText = "Error: " + errorMsg;
+                    document.getElementById("extJudgeSummary").innerText = "N/A";
+                    document.getElementById("extScore").innerText = "N/A";
+                    
+                    const outcomeBadge = document.getElementById("extOutcome"); 
+                    outcomeBadge.innerText = "ERROR";
+                    outcomeBadge.className = "px-3 py-1 rounded font-bold text-sm bg-red-500/20 text-red-400 border border-red-500/50";
+                    return;
                 }
-            } catch (error) { document.getElementById("externalResult").classList.remove("hidden"); document.getElementById("extTargetResponse").innerText = "Failed to connect to backend."; }
-            finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-satellite-dish mr-2"></i> Test External Agent'; }
+
+                lastExternalData = data; 
+                document.getElementById("extTargetResponse").innerText = data.target_response || "No response";
+                document.getElementById("extJudgeSummary").innerText = data.summary || "No summary"; 
+                document.getElementById("extScore").innerText = (data.trust_score !== undefined ? data.trust_score : 0) + "/100";
+                
+                const outcomeBadge = document.getElementById("extOutcome"); 
+                outcomeBadge.innerText = data.security_outcome || "UNKNOWN";
+                
+                if (data.security_outcome === "PASS") 
+                    outcomeBadge.className = "px-3 py-1 rounded font-bold text-sm bg-emerald-500/20 text-emerald-400 border border-emerald-500/50";
+                else if (data.security_outcome === "FAIL") 
+                    outcomeBadge.className = "px-3 py-1 rounded font-bold text-sm bg-red-500/20 text-red-400 border border-red-500/50";
+                else 
+                    outcomeBadge.className = "px-3 py-1 rounded font-bold text-sm bg-yellow-500/20 text-yellow-400 border border-yellow-500/50";
+                
+            } catch (error) { 
+                document.getElementById("externalResult").classList.remove("hidden"); 
+                document.getElementById("extTargetResponse").innerText = "Failed to connect to backend: " + error.message; 
+                document.getElementById("extJudgeSummary").innerText = "N/A";
+                document.getElementById("extScore").innerText = "N/A";
+            } finally { 
+                btn.disabled = false; 
+                btn.innerHTML = '<i class="fas fa-satellite-dish mr-2"></i> Test External Agent'; 
+            }
         }
 
         document.getElementById("downloadExtBtn").addEventListener("click", () => {
@@ -241,4 +280,4 @@
         });
     </script>
 </body>
-    </html>
+                                                                                                                                                                                                                                                                           </html>
