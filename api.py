@@ -27,8 +27,8 @@ class IntentRequest(BaseModel):
 class ExternalAgentRequest(BaseModel):
     api_url: str
     payload: str
-    
-    @app.get("/")
+
+@app.get("/")
 def read_root():
     return {"status": "BossAgent API is running", "agent_active": agent_active}
 
